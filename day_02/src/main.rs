@@ -22,6 +22,18 @@ struct PasswordEntry {
     passwd: String,
 }
 
+impl PasswordEntry {
+    fn valid_sled(&self) -> bool {
+        let count = self.passwd.chars().filter(|&c| c == self.c).count();
+        (count >= self.min) && (count <= self.max)
+    }
+    fn valid_toboggan(&self) -> bool {
+        let a = self.passwd.chars().nth(self.min - 1).unwrap();
+        let b = self.passwd.chars().nth(self.max - 1).unwrap();
+        (a == self.c) ^ (b == self.c)
+    }
+}
+
 fn parse_input(input: String) -> Vec<PasswordEntry> {
     input
         .lines()
@@ -31,7 +43,12 @@ fn parse_input(input: String) -> Vec<PasswordEntry> {
 
 fn part1(input: String) -> usize {
     let input = parse_input(input);
-    unimplemented!()
+    input.iter().filter(|e| e.valid_sled()).count()
+}
+
+fn part2(input: String) -> usize {
+    let input = parse_input(input);
+    input.iter().filter(|e| e.valid_toboggan()).count()
 }
 
 fn main() {
@@ -48,8 +65,32 @@ fn main() {
 
     let output = match settings.part.to_lowercase().as_str() {
         "1" | "one" => part1(input),
-        "2" | "two" => unimplemented!(),
+        "2" | "two" => part2(input),
         _ => panic!("i need a part NUMBER!!!!"),
     };
     println!("It's: {}", output);
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::PasswordEntry;
+
+    #[test]
+    fn test_sled() {
+        let a: PasswordEntry = "1-3 a: abcde".parse().unwrap();
+        let b: PasswordEntry = "1-3 b: cdefg".parse().unwrap();
+        let c: PasswordEntry = "2-9 c: ccccccccc".parse().unwrap();
+        assert!(a.valid_sled());
+        assert!(!b.valid_sled());
+        assert!(c.valid_sled());
+    }
+    #[test]
+    fn test_toboggan() {
+        let a: PasswordEntry = "1-3 a: abcde".parse().unwrap();
+        let b: PasswordEntry = "1-3 b: cdefg".parse().unwrap();
+        let c: PasswordEntry = "2-9 c: ccccccccc".parse().unwrap();
+        assert!(a.valid_toboggan());
+        assert!(!b.valid_toboggan());
+        assert!(!c.valid_toboggan());
+    }
 }
