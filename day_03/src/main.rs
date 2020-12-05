@@ -10,20 +10,36 @@ struct Settings {
     part: String,
 }
 
-fn part1(input: String) -> usize {
-    let slope_x = 3;
-    let slope_y = 1;
+struct Vec2<T> {
+    x: T,
+    y: T,
+}
 
+fn count_trees(input: &String, slope: &Vec2<usize>) -> usize {
     input
         .lines()
-        .step_by(slope_y)
+        .step_by(slope.y)
         .enumerate()
-        .filter(|(i, line)| line.chars().cycle().nth(slope_x * i).unwrap() == '#')
+        .filter(|(i, line)| line.chars().cycle().nth(slope.x * i).unwrap() == '#')
         .count()
 }
 
-fn part2(_input: String) -> usize {
-    unimplemented!()
+fn part1(input: String) -> usize {
+    let slope = Vec2 { x: 3, y: 1 };
+    count_trees(&input, &slope)
+}
+
+fn part2(input: String) -> usize {
+    let slopes = [
+        Vec2 { x: 1, y: 1 },
+        Vec2 { x: 3, y: 1 },
+        Vec2 { x: 5, y: 1 },
+        Vec2 { x: 7, y: 1 },
+        Vec2 { x: 1, y: 2 },
+    ];
+    slopes
+        .iter()
+        .fold(1, |acc, slope| count_trees(&input, slope) * acc)
 }
 
 fn main() {
@@ -48,7 +64,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::part1;
+    use crate::{part1, part2};
 
     const TEST_INPUT: &'static str = r#"..##.......
 #...#...#..
@@ -67,5 +83,7 @@ mod tests {
         assert_eq!(part1(TEST_INPUT.to_string()), 7);
     }
     #[test]
-    fn tes2() {}
+    fn tes2() {
+        assert_eq!(part2(TEST_INPUT.to_string()), 336);
+    }
 }
