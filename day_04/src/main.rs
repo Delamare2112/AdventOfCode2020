@@ -87,10 +87,11 @@ impl TryFrom<PassportStrings> for Passport {
             eyr: strings.0["eyr"].parse().unwrap(),
             hgt: {
                 let s = &strings.0["hgt"];
-                let value = s[0..s.len() - 2].parse().unwrap();
                 if s.ends_with("in") {
+                    let value = s[0..s.len() - 2].parse().unwrap();
                     Units::In(value)
                 } else if s.ends_with("cm") {
+                    let value = s[0..s.len() - 2].parse().unwrap();
                     Units::Cm(value)
                 } else {
                     return Err("Invalid height");
@@ -159,7 +160,7 @@ fn main() {
 
     let output = match settings.part.to_lowercase().as_str() {
         "1" | "one" => part1(input),
-        "2" | "two" => part2(input),
+        "2" | "two" => part2(input), // 129 is too low for me.
         _ => panic!("i need a part NUMBER!!!!"),
     };
     println!("It's: {}", output);
