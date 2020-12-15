@@ -44,7 +44,7 @@ impl Passport {
         }
         match self.hgt {
             Units::Cm(height) => {
-                if height < 150 || height > 192 {
+                if height < 150 || height > 193 {
                     return false;
                 }
             }
@@ -55,6 +55,9 @@ impl Passport {
             }
         }
         if !self.hcl.starts_with('#') {
+            return false;
+        }
+        if self.hcl.len() != 7 {
             return false;
         }
         if usize::from_str_radix(&self.hcl[1..], 16).is_err() {
@@ -104,6 +107,7 @@ impl TryFrom<PassportStrings> for Passport {
     }
 }
 
+#[derive(Debug)]
 struct PassportStrings(HashMap<String, String>);
 
 impl PassportStrings {
@@ -121,11 +125,13 @@ fn part1(input: String) -> usize {
 }
 
 fn part2(input: String) -> usize {
-    input_to_passport_strings(input.to_string())
+    let valid: Vec<Passport> = input_to_passport_strings(input.to_string())
         .drain(..)
         .filter_map(|passport_strings| Passport::try_from(passport_strings).ok())
         .filter(|passport| passport.valid())
-        .count()
+        .collect();
+    dbg!(&valid);
+    valid.len()
 }
 
 fn input_to_passport_strings(input: String) -> Vec<PassportStrings> {
@@ -168,7 +174,8 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::{part1, part2};
+    use crate::Units::Cm;
+    use crate::{part1, part2, Passport};
 
     const TEST_INPUT: &'static str = r#"ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
 byr:1937 iyr:2017 cid:147 hgt:183cm
@@ -217,5 +224,18 @@ eyr:2038 hcl:74454a iyr:2023
 pid:3556412378 byr:2007"#;
         assert_eq!(part2(valid.to_string()), 4);
         assert_eq!(part2(invalid.to_string()), 0);
+    }
+    #[test]
+    fn test3() {
+        let p = Passport {
+            byr: 1973,
+            iyr: 2010,
+            eyr: 2026,
+            hgt: Cm(193),
+            hcl: "#623a2f".to_string(),
+            ecl: "hzl".to_string(),
+            pid: "374988952".to_string(),
+        };
+        assert!(p.valid());
     }
 }
