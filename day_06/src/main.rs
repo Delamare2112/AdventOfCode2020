@@ -21,8 +21,23 @@ fn part1(input: String) -> usize {
     })
 }
 
-fn part2(_input: String) -> usize {
-    unimplemented!()
+fn part2(input: String) -> usize {
+    input.split("\n\n").fold(0, |a, group| {
+        let mut first = group.lines().next().unwrap().chars().collect::<Vec<_>>();
+        for line in group.lines().skip(1) {
+            let mut to_remove = Vec::new();
+            for (i, &a) in first.iter().enumerate() {
+                if !line.contains(a) {
+                    to_remove.push(i);
+                }
+            }
+            to_remove.sort();
+            for (j, k) in to_remove.iter().enumerate() {
+                first.remove(k - j);
+            }
+        }
+        a + first.len()
+    })
 }
 
 fn main() {
@@ -39,7 +54,7 @@ fn main() {
 
     let output = match settings.part.to_lowercase().as_str() {
         "1" | "one" => part1(input),
-        "2" | "two" => part2(input),
+        "2" | "two" => part2(input), // 970 is too low!
         _ => panic!("i need a part NUMBER!!!!"),
     };
     println!("It's: {}", output);
@@ -47,11 +62,9 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::part1;
+    use crate::{part1, part2};
 
-    #[test]
-    fn test1() {
-        let input = r#"abc
+    const INPUT: &'static str = r#"abc
 
 a
 b
@@ -65,10 +78,14 @@ a
 a
 a
 
-b"#
-        .to_string();
-        assert_eq!(part1(input), 11);
+b"#;
+
+    #[test]
+    fn test1() {
+        assert_eq!(part1(INPUT.to_string()), 11);
     }
     #[test]
-    fn tes2() {}
+    fn tes2() {
+        assert_eq!(part2(INPUT.to_string()), 6);
+    }
 }
